@@ -28,8 +28,8 @@ public class $ extends JavaPlugin {
     public void command(CommandSender p, List<String> input) {
         if (input.isEmpty()) {
             p.sendMessage(new String[]{
-                    "/tilemgr find <material>",
-                    "/tilemgr next <material>",
+                    "/tilemgr find <block> [limit]",
+                    "/tilemgr next <block>",
                     ""
             });
             return;
@@ -83,6 +83,7 @@ public class $ extends JavaPlugin {
 
     static void find(CommandSender p, Iterator<String> itr) {
         Material material = Material.valueOf(itr.next().toUpperCase());
+        int limit = itr.hasNext() ? Integer.parseInt(itr.next()) : Integer.MIN_VALUE;
         List<World> all = p instanceof Player ? Collections.singletonList(((Player) p).getWorld()) : Bukkit.getWorlds();
         all.forEach(w -> {
             p.sendMessage("--- " + w.getName());
@@ -90,7 +91,7 @@ public class $ extends JavaPlugin {
             List<Pair<String, Integer>> l = new ArrayList<>();
             byLoc.asMap().forEach((k, v) -> l.add(new Pair<>(k, v.size())));
             l.sort((i, r) -> r.getValue() - i.getValue());
-            l.forEach(line -> p.sendMessage("> " + line.getKey() + " " + line.getValue()));
+            l.stream().filter(line -> line.getValue() > limit).forEach(line -> p.sendMessage("> " + line.getKey() + " " + line.getValue()));
             p.sendMessage("---");
         });
     }
