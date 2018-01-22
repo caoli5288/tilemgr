@@ -15,8 +15,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class $ extends JavaPlugin {
@@ -92,12 +94,29 @@ public class $ extends JavaPlugin {
             byLoc.asMap().forEach((k, v) -> l.add(new Pair<>(k, v.size())));
             l.sort((i, r) -> r.getValue() - i.getValue());
             l.stream().filter(line -> line.getValue() > limit).forEach(line -> p.sendMessage("> " + line.getKey() + " " + line.getValue()));
-            p.sendMessage("---");
+        });
+    }
+
+    private static void all(CommandSender p, Iterator<String> input) {
+        List<World> all = p instanceof Player ? Collections.singletonList(((Player) p).getWorld()) : Bukkit.getWorlds();
+        all.forEach(w -> {
+            List<BlockState> allTile = allTile(w);
+            Map<String, Integer> map = new HashMap<>();
+            allTile.forEach(tile -> {
+                String key = tile.getType().name();
+                Integer i = map.get(key);
+                map.put(key, i == null ? 1 : 1 + i);
+            });
+            ArrayList<Map.Entry<String, Integer>> l = new ArrayList<>(map.entrySet());
+            l.sort((i, r) -> r.getValue() - i.getValue());
+            p.sendMessage("--- " + w.getName());
+            l.forEach(line -> p.sendMessage("> " + line.getKey() + " " + line.getValue()));
         });
     }
 
     enum Label {
 
+        ALL($::all),
         FIND($::find),
         NEXT($::next);
 
